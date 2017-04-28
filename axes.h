@@ -1,6 +1,5 @@
 #ifndef AXES_H
 #define AXES_H
-
 #include <vector>
 #include <QOpenGLShaderProgram>
 
