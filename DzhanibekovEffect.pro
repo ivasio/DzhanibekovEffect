@@ -15,11 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         dialog.cpp \
     scene.cpp \
-    axes.cpp
+    body.cpp \
+    ServiceClasses/alert.cpp \
+    ServiceClasses/numberinput.cpp \
+    ServiceClasses/positivenumberinput.cpp
 
 HEADERS  += dialog.h \
     scene.h \
-    axes.h
+    body.h \
+    ServiceClasses/alert.h \
+    ServiceClasses/numberinput.h \
+    ServiceClasses/positivenumberinput.h
 
 FORMS    += dialog.ui
 

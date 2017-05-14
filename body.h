@@ -4,12 +4,12 @@
 #include <QQuaternion>
 #include <QOpenGLShaderProgram>
 
-class Axes
+class Body
 {
 public:
-    Axes(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr,
-         float A, float B, float C);
+    Body(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr);
 
+    void setInertionTensor (QVector3D I_p);
     void draw ();
 
     QMatrix3x3 I;
@@ -19,12 +19,11 @@ private:
 
     void initVerticles ();
     void initColors();
-    void initInertionTensors (float A, float B, float C);
 
     std::vector<float> m_verticles;
     std::vector<float> m_colors;
 
-    QOpenGLShaderProgram* m_program;
+    QOpenGLShaderProgram* program;
 
     int m_vertexAttr;
     int m_colorAttr;

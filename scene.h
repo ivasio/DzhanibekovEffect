@@ -4,19 +4,22 @@
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QTimer>
+#include <QQuaternion>
 #include <QKeyEvent>
 
-#include "axes.h"
+#include "body.h"
 
 class Scene : public QOpenGLWidget
 {
     Q_OBJECT
+
 public:
-    Scene( QWidget *parent = 0);
+    Scene( QWidget *parent);
     ~Scene();
 
 private slots:
     void slotRotate();
+    void receiveParameters (QVector3D w, QVector3D I);
 
 private:
     void initializeGL();
@@ -24,16 +27,21 @@ private:
     void resizeGL(int w, int h);
 
     void keyPressEvent(QKeyEvent* event);
-    Axes* m_axes;
-    QOpenGLShaderProgram m_program;
+    Body* body;
 
+    QOpenGLShaderProgram* program;
     int m_vertexAttr;
     int m_colorAttr;
     int m_matrixUniform;
 
-    double m_step;
-    double m_angle;
-    QTimer m_timer;
+    QTimer* timer;
+    float timeStep;
+    float velocity;
+
+    QQuaternion fullRotation;
+    QVector3D* w;
+    QVector3D* w0;
+
 };
 
 #endif // SCENE_H

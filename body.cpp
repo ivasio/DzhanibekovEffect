@@ -1,33 +1,31 @@
-#include "axes.h"
+#include "body.h"
 //#include "servicefunctions.cpp"
 
-Axes::Axes (QOpenGLShaderProgram* program, int vertexAttr, int colorAttr,
-            float A, float B, float C) :
-    m_program (program),
+Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr, int colorAttr) :
+    program (program_p),
     m_vertexAttr (vertexAttr),
     m_colorAttr (colorAttr)
 
 {
-    initInertionTensors (A, B, C);
     initVerticles();
     initColors();
 }
 
-void Axes::draw()
+void Body::draw()
 {
-    m_program->setAttributeArray(m_vertexAttr, m_verticles.data(), 3);
-    m_program->setAttributeArray(m_colorAttr, m_colors.data(), 3);
+    program->setAttributeArray(m_vertexAttr, m_verticles.data(), 3);
+    program->setAttributeArray(m_colorAttr, m_colors.data(), 3);
 
-    m_program->enableAttributeArray(m_vertexAttr);
-    m_program->enableAttributeArray(m_colorAttr);
+    program->enableAttributeArray(m_vertexAttr);
+    program->enableAttributeArray(m_colorAttr);
 
     glDrawArrays( GL_LINES, 0, m_verticles.size() / 3);
 
-    m_program->disableAttributeArray(m_vertexAttr);
-    m_program->disableAttributeArray(m_colorAttr);
+    program->disableAttributeArray(m_vertexAttr);
+    program->disableAttributeArray(m_colorAttr);
 }
 
-void Axes::initVerticles ()
+void Body::initVerticles ()
 {
     m_verticles.resize (18);
 
@@ -59,7 +57,7 @@ void Axes::initVerticles ()
 
 }
 
-void Axes::initColors()
+void Body::initColors()
 {
     m_colors.resize (18);
 
@@ -88,13 +86,15 @@ void Axes::initColors()
     m_colors[17] = 1;
 }
 
-void Axes::initInertionTensors (float A, float B, float C)
+void Body::setInertionTensor (QVector3D I_p)
 {
-    float moments[9] = {A, 0, 0, 0, B, 0, 0, 0, C};
-    float momentsRev[9] = {1/A, 0, 0, 0, 1/B, 0, 0, 0, 1/C};
+    float moments[9] = {I_p.x(), 0, 0,
+                        0, I_p.y(), 0,
+                        0, 0, I_p.z()};
 
-    //I = new QMatrix3x3 (moments);
-    //IRev = new QMatrix3x3 (momentsRev);
+    float momentsRev[9] = {1/I_p.x(), 0, 0,
+                           0, 1/I_p.y(), 0,
+                           0, 0, 1/I_p.z()};
 
     new(&I)(QMatrix3x3)(moments);
     new(&IRev)(QMatrix3x3)(momentsRev);
