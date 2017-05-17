@@ -107,19 +107,15 @@ void Scene::keyPressEvent(QKeyEvent *event)
     {
         case Qt::Key_Up :
             velocity += 1;
-            qDebug() << "velocity " << velocity;
             break;
         case Qt::Key_Down :
             velocity -= 1;
-            qDebug() << "velocity " << velocity;
             break;
         case Qt::Key_Right :
             velocity *= 2;
-            qDebug() << "velocity " << velocity;
             break;
         case Qt::Key_Left :
             velocity *= 0.5;
-            qDebug() << "velocity " << velocity;
             break;
     }
 
