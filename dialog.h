@@ -25,9 +25,15 @@ private:
 
 private slots:
     void processParameters();
+    void pause();
+    void stop();
+
 
 signals:
     void sendParameters (QVector3D w, QVector3D I);
+    void sendPaused ();
+    void sendStopped ();
+
 };
 
 #endif // DIALOG_H

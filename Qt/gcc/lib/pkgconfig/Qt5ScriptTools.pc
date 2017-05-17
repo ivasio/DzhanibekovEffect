@@ -1,0 +1,14 @@
+prefix=/home/ivasio/Qt/5.5/gcc
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 ScriptTools
+Description: Qt ScriptTools module
+Version: 5.5.1
+Libs: -L${libdir} -lQt5ScriptTools 
+Libs.private: -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Core -lpthread -lQt5Widgets -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Gui -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Script -lQt5Core -lpthread -lGL  
+Cflags: -I${includedir}/QtScriptTools -I${includedir}
+Requires: Qt5Core
+

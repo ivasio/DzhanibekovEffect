@@ -1,0 +1,14 @@
+prefix=/home/ivasio/Qt/5.5/gcc
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 Declarative
+Description: Qt Declarative module
+Version: 5.5.1
+Libs: -L${libdir} -lQt5Declarative 
+Libs.private: -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Widgets -lQt5Gui -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Script -lQt5Sql -L/home/ivasio/Qt/5.5/gcc/lib -lQt5XmlPatterns -lQt5Network -lQt5Core -lpthread -lrt -lQt5XmlPatterns -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Network -lQt5Core -lpthread -lGL  
+Cflags: -I${includedir}/QtDeclarative -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5Widgets Qt5Script
+

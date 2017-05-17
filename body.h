@@ -1,13 +1,13 @@
 #ifndef AXES_H
 #define AXES_H
-#include <vector>
+#include <QVector3D>
 #include <QQuaternion>
 #include <QOpenGLShaderProgram>
 
 class Body
 {
 public:
-    Body(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr);
+    Body(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr, QVector3D I_p);
 
     void setInertionTensor (QVector3D I_p);
     void draw ();
@@ -17,16 +17,19 @@ public:
 
 private:
 
-    void initVerticles ();
-    void initColors();
+    void initVerticles (float a, float b, float c);
 
-    std::vector<float> m_verticles;
-    std::vector<float> m_colors;
+    QVector3D* verticles;
+    QVector3D* colors;
 
     QOpenGLShaderProgram* program;
 
-    int m_vertexAttr;
-    int m_colorAttr;
+    int vertexAttr;
+    int colorAttr;
+
+    int parallels;
+    int meridians;
+    int arrSize;
 };
 
 #endif // AXES_H

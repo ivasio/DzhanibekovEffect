@@ -1,0 +1,14 @@
+prefix=/home/ivasio/Qt/5.5/gcc
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 3DRenderer
+Description: Qt 3DRenderer module
+Version: 5.5.1
+Libs: -L${libdir} -lQt53DRenderer 
+Libs.private: -L/home/ivasio/Qt/5.5/gcc/lib -lQt53DCore -L/home/ivasio/Qt/5.5/gcc/lib -lQt5OpenGLExtensions -lGL -lQt5Gui -lQt5Concurrent -lQt5Core -lpthread -lGL  
+Cflags: -I${includedir}/Qt3DRenderer -I${includedir}
+Requires: Qt5Core Qt5Gui Qt53DCore Qt5OpenGLExtensions Qt5Concurrent
+

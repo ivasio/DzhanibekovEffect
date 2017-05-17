@@ -1,0 +1,14 @@
+prefix=/home/ivasio/Qt/5.5/gcc
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 DesignerComponents
+Description: Qt DesignerComponents module
+Version: 5.5.1
+Libs: -L${libdir} -lQt5DesignerComponents 
+Libs.private: -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Designer -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Widgets -lQt5Gui -lQt5Xml -lQt5Core -lpthread -lQt5Xml -L/home/ivasio/Qt/5.5/gcc/lib -lQt5Core -lpthread -lGL  
+Cflags: -I${includedir}/QtDesignerComponents -I${includedir}
+Requires: Qt5Core Qt5Gui Qt5Widgets Qt5Designer
+

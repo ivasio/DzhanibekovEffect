@@ -17,8 +17,12 @@ public:
     Scene( QWidget *parent);
     ~Scene();
 
+    bool timerPaused;
+
 private slots:
-    void slotRotate();
+    void rotate();
+    void pause();
+    void stop();
     void receiveParameters (QVector3D w, QVector3D I);
 
 private:
@@ -41,6 +45,7 @@ private:
     QQuaternion fullRotation;
     QVector3D* w;
     QVector3D* w0;
+    float projectionCubeSize;
 
 };
 

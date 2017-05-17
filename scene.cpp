@@ -1,25 +1,23 @@
-//#include <QMatrix4x4>
-//#include <QMatrix3x3>
 #include <QQuaternion>
 #include <QDebug>
-
 #include "scene.h"
-#include "ServiceClasses/servicefunctions.cpp"
+#include "ServiceClasses/servicefunctions.h"
 #include <cmath>
-
-#define PI 3.14159265358979323846264338327950288419
+#include <QGLFormat>
 
 Scene::Scene( QWidget *parent) :
     QOpenGLWidget (parent),
-    timeStep (25),
-    velocity (10)
+    timerPaused (false),
+    timeStep (5),
+    velocity (0.5),
+    projectionCubeSize (5)
 {
     timer = new QTimer(parent);
     program = new QOpenGLShaderProgram (this);
 
     new(&fullRotation)(QQuaternion)(1, 0, 0, 0);
     setFocusPolicy(Qt::StrongFocus);
-    connect (timer, SIGNAL (timeout()), this, SLOT (slotRotate()));
+    connect (timer, SIGNAL (timeout()), this, SLOT (rotate()));
 
 }
 
@@ -32,6 +30,11 @@ Scene::~Scene()
 void Scene::initializeGL()
 {
     glClearColor (0.1f, 0.1f, 0.2f, 1.0f);
+    glEnable (GL_DEPTH_TEST);
+
+    QGLFormat fmt;
+    fmt.setDoubleBuffer(true);
+    QGLFormat::setDefaultFormat(fmt);
 
     QOpenGLShader vShader (QOpenGLShader::Vertex);
     vShader.compileSourceFile(":/Shaders/vShader.glsl");
@@ -52,13 +55,15 @@ void Scene::initializeGL()
     m_colorAttr = program->attributeLocation("colorAttr");
     m_matrixUniform = program->uniformLocation("matrix");
 
-    body = new Body(program, m_vertexAttr, m_colorAttr);
+    QVector3D I(1, 1, 1);
+    body = new Body(program, m_vertexAttr, m_colorAttr, I);
+
 }
 
 
 void Scene::paintGL()
 {
-    glClear (GL_COLOR_BUFFER_BIT);
+    glClear (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     if (!program->bind()) {
         qWarning ("Error : Unable to bind a shader program.\n");
@@ -66,10 +71,12 @@ void Scene::paintGL()
     }
 
     QMatrix4x4 matrix;
-    matrix.ortho (-10, 10, -10, 10, 10, -10);
+    matrix.ortho (-projectionCubeSize, projectionCubeSize,
+                  -projectionCubeSize, projectionCubeSize,
+                  projectionCubeSize, -projectionCubeSize);
     matrix.translate(0, 0, 1);
     matrix.rotate (fullRotation);
-    //QQuaternion
+
     program->setUniformValue(m_matrixUniform, matrix);
 
     body->draw();
@@ -84,12 +91,13 @@ void Scene::resizeGL(int w, int h)
 
 void testMul(QMatrix3x3 matr)
 {
+    ServiceFunctions s;
     QQuaternion rot = QQuaternion::fromAxisAndAngle(0, 0, 1, 90);
     QMatrix3x3 newMatr = rot.toRotationMatrix();
     QMatrix3x3 result = newMatr * matr;
     QMatrix3x3 newMatrT = rot.conjugate().toRotationMatrix();
     result = result * newMatrT;
-    printMatrix (matr.data());printMatrix (result.data());
+    s.printMatrix3x3 (matr.data());s.printMatrix3x3 (result.data());
 }
 
 
@@ -113,64 +121,71 @@ void Scene::keyPressEvent(QKeyEvent *event)
             velocity *= 0.5;
             qDebug() << "velocity " << velocity;
             break;
-        case Qt::Key_W :
-            timeStep += 1;
-            timer->start(this->timeStep);
-            qDebug() << "timeStep " << timeStep;
-            break;
-        case Qt::Key_S :
-            timeStep -= 1;
-            timer->start(this->timeStep);
-            qDebug() << "timeStep " << timeStep;
-            break;
-        case Qt::Key_D :
-            timeStep *= 2;
-            timer->start(this->timeStep);
-            qDebug() << "timeStep " << timeStep;
-            break;
-        case Qt::Key_A :
-            timeStep *= 0.5;
-            timer->start(this->timeStep);
-            qDebug() << "timeStep " << timeStep;
-            break;
-        case Qt::Key_Q :
-            slotRotate();
-            //testMul(body->I);
-            break;
     }
 
 }
 
-void Scene::slotRotate()
+void Scene::rotate()
 {
-    //qDebug() << (w->length())*9*velocity;//(50*PI);
-    //QQuaternion rotation ((w->length())*9*velocity/(50*PI), *w);
-//    QQuaternion rotation = QQuaternion::fromAxisAndAngle(*w, (w->length())*9*velocity/(50*PI));
-    QQuaternion rotation = QQuaternion::fromAxisAndAngle(*w, velocity);
+    ServiceFunctions s;
+    QQuaternion rotation = QQuaternion::fromAxisAndAngle(*w, w->length()*velocity);
     fullRotation *= rotation;
 
-    QMatrix3x3 S = rotation.toRotationMatrix();
-    QMatrix3x3 SRev = rotation.conjugate().toRotationMatrix();
-    S = S * body->IRev * SRev * body->I;
+    QMatrix3x3 S = fullRotation.toRotationMatrix();
+    QMatrix3x3 SRev = fullRotation.conjugate().toRotationMatrix();
+
+    S = body->IRev * S * body->I * SRev;
 
     float wVec[3];
     wVec[0] = w0->x(); wVec[1] = w0->y(); wVec[2] = w0->z();
-    QGenericMatrix<1,3,float> wMat(wVec);
-    wMat = S*wMat;
+    QGenericMatrix<3,1,float> wMat(wVec);
+
+    wMat = wMat*S;
 
     wMat.copyDataTo (wVec);
     w = new QVector3D (wVec[0], wVec[1], wVec[2]);
+    w->normalize();
+    s.stabilize(w);
+    s.stabilize(&fullRotation);
 
     update();
+}
+
+void Scene::pause()
+{
+
+    if (timerPaused)
+    {
+        timerPaused = false;
+        timer->start(timeStep);
+    } else
+    {
+        timerPaused = true;
+        timer->stop();
+    }
+}
+
+void Scene::stop()
+{
+    timerPaused = false;
+    timer->stop();
+
+    new(&fullRotation)(QQuaternion)(1, 0, 0, 0);
+    update();
+
 }
 
 void Scene::receiveParameters(QVector3D w_p, QVector3D I_p)
 {
 
+    ServiceFunctions s;
+    body = new Body(program, m_vertexAttr, m_colorAttr, I_p);
+    projectionCubeSize = 1.5 * s.maxReversedMoment(&I_p);
+    update();
+
     w = new QVector3D (w_p.x(), w_p.y(), w_p.z());
     w0 = new QVector3D (w_p.x(), w_p.y(), w_p.z());
 
-    body->setInertionTensor(I_p);
-
-    timer->start(this->timeStep);
+    velocity = 0.5 * w->length();
+    timer->start(timeStep);
 }

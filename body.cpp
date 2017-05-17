@@ -1,93 +1,90 @@
 #include "body.h"
-//#include "servicefunctions.cpp"
+#include "ServiceClasses/servicefunctions.h"
+#include <cmath>
 
-Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr, int colorAttr) :
+Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr_p, int colorAttr_p, QVector3D I_p) :
     program (program_p),
-    m_vertexAttr (vertexAttr),
-    m_colorAttr (colorAttr)
-
+    vertexAttr (vertexAttr_p),
+    colorAttr (colorAttr_p),
+    parallels (100),//100
+    meridians (180)//180
 {
-    initVerticles();
-    initColors();
+    arrSize = (parallels-1) * (meridians+1) * 2 + 2 * (meridians+2);
+    colors = new QVector3D[arrSize];
+    verticles = new QVector3D[arrSize];
+
+    setInertionTensor(I_p);
+    initVerticles(I_p.x(), I_p.y(), I_p.z());
+
 }
 
 void Body::draw()
 {
-    program->setAttributeArray(m_vertexAttr, m_verticles.data(), 3);
-    program->setAttributeArray(m_colorAttr, m_colors.data(), 3);
+    program->setAttributeArray(vertexAttr, verticles);
+    program->setAttributeArray(colorAttr, colors);
 
-    program->enableAttributeArray(m_vertexAttr);
-    program->enableAttributeArray(m_colorAttr);
+    program->enableAttributeArray(vertexAttr);
+    program->enableAttributeArray(colorAttr);
 
-    glDrawArrays( GL_LINES, 0, m_verticles.size() / 3);
+    glDrawArrays( GL_TRIANGLE_FAN, meridians + 2, meridians + 2);
+    glDrawArrays( GL_TRIANGLE_FAN, 0, meridians + 2);
 
-    program->disableAttributeArray(m_vertexAttr);
-    program->disableAttributeArray(m_colorAttr);
+    int i0 = 2*meridians + 4;
+    for (int i = 0; i < parallels - 1; i++) // номер параллели верхней границы полосы
+        glDrawArrays(GL_QUAD_STRIP, i0 + i*(2*(meridians+1)), 2*(meridians+1));
+
+    program->disableAttributeArray(vertexAttr);
+    program->disableAttributeArray(colorAttr);
 }
 
-void Body::initVerticles ()
+void Body::initVerticles (float a, float b, float c)
 {
-    m_verticles.resize (18);
 
-    m_verticles[0] = 0;
-    m_verticles[1] = 0;
-    m_verticles[2] = 0;
+    ServiceFunctions s;
+    float d_phi = 360.0 / meridians;
+    float d_theta = 180.0 / (parallels + 1.0);
+    float d_color = 1.0 / (parallels - 1.0);
 
-    m_verticles[3] = 3;
-    m_verticles[4] = 0;
-    m_verticles[5] = 0;
+    s.setDeg(&verticles[0], 0, 90);
+    s.setCol(&colors[0], 1);
 
-    m_verticles[6] = 0;
-    m_verticles[7] = 0;
-    m_verticles[8] = 0;
+    s.setDeg(&verticles[meridians+2], 0, -90);
+    s.setCol(&colors[meridians+2], 0);
 
-    m_verticles[9] = 0;
-    m_verticles[10] = 3;
-    m_verticles[11] = 0;
+    for (int i = 0; i<= meridians; i++)
+    {
+        s.setDeg (&verticles[i+1], i*d_phi, 90 - d_theta);
+        s.setCol(&colors[i+1], 1);
 
-    m_verticles[12] = 0;
-    m_verticles[13] = 0;
-    m_verticles[14] = 0;
+        s.setDeg (&verticles[i+meridians+3], 360-i*d_phi, -90 + d_theta);
+        s.setCol(&colors[i+meridians+3], 0);
+    }
 
-    m_verticles[15] = 0;
-    m_verticles[16] = 0;
-    m_verticles[17] = 3;
+    int i0 = 2*meridians + 4;
+    for (int i = 0; i < parallels - 1; i++) // номер параллели верхней границы полосы
+    {
+        for (int j = 0; j <= meridians; j++) // номер меридиана границы клетки
+        {
+            s.setDeg (&verticles[i0 + 2*((meridians+1)*i + j)], j*d_phi, 90-(i+1)*d_theta);
+            s.setCol (&colors[i0 + 2*((meridians+1)*i + j)], 1.0 - i*d_color);
+            s.setDeg (&verticles[i0 + 2*((meridians+1)*i + j) + 1], j*d_phi, 90-(i+2)*d_theta);
+            s.setCol (&colors[i0 + 2*((meridians+1)*i + j) + 1], 1.0 - (i)*d_color);
+        }
 
+    }
 
+    for (int i = 0; i < arrSize; i++)
+    {
+        verticles[i].setX (verticles[i].x() * a);
+        verticles[i].setY (verticles[i].y() * b);
+        verticles[i].setZ (verticles[i].z() * c);
+    }
 
-}
-
-void Body::initColors()
-{
-    m_colors.resize (18);
-
-    m_colors[0] = 1;
-    m_colors[1] = 0;
-    m_colors[2] = 0;
-
-    m_colors[3] = 1;
-    m_colors[4] = 0;
-    m_colors[5] = 0;
-
-    m_colors[6] = 0;
-    m_colors[7] = 1;
-    m_colors[8] = 0;
-
-    m_colors[9] = 0;
-    m_colors[10] = 1;
-    m_colors[11] = 0;
-
-    m_colors[12] = 0;
-    m_colors[13] = 0;
-    m_colors[14] = 1;
-
-    m_colors[15] = 0;
-    m_colors[16] = 0;
-    m_colors[17] = 1;
 }
 
 void Body::setInertionTensor (QVector3D I_p)
 {
+
     float moments[9] = {I_p.x(), 0, 0,
                         0, I_p.y(), 0,
                         0, 0, I_p.z()};

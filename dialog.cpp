@@ -16,9 +16,15 @@ Dialog::Dialog(QWidget *parent) :
     connect (ui->input_wy, SIGNAL(validated(bool)), ui->alert_wz, SLOT(hide(bool)));
     connect (ui->input_wz, SIGNAL(validated(bool)), ui->alert_wz, SLOT(hide(bool)));
 
-    connect (ui->subitButton, SIGNAL(clicked()), this, SLOT(processParameters()));
+    connect (ui->submitButton, SIGNAL(clicked()), this, SLOT(processParameters()));
     connect (this, SIGNAL(sendParameters(QVector3D,QVector3D)),
              ui->SceneWidget, SLOT(receiveParameters(QVector3D,QVector3D)));
+
+    connect (ui->pauseButton, SIGNAL(clicked()), this, SLOT(pause()));
+    connect (this, SIGNAL(sendPaused()), ui->SceneWidget, SLOT(pause()));
+
+    connect (ui->stopButton, SIGNAL(clicked()), this, SLOT(stop()));
+    connect (this, SIGNAL(sendStopped()), ui->SceneWidget, SLOT(stop()));
 
 }
 
@@ -29,12 +35,12 @@ Dialog::~Dialog()
 
 void Dialog::setDefaultValues()
 {
-    ui->input_Ix->setText("65");
+    ui->input_Ix->setText("30");
     ui->input_Iy->setText("10");
-    ui->input_Iz->setText("1");
-    ui->input_wx->setText("0.5");
-    ui->input_wy->setText("10");
-    ui->input_wz->setText("1.2");
+    ui->input_Iz->setText("5");
+    ui->input_wx->setText("10");
+    ui->input_wy->setText("0");
+    ui->input_wz->setText("0");
 }
 
 void Dialog::processParameters()
@@ -62,5 +68,29 @@ void Dialog::processParameters()
                  ui->input_Iy->text().toFloat(),
                  ui->input_Iz->text().toFloat());
 
+    ui->pauseButton->setEnabled(true);
+    ui->stopButton->setEnabled(true);
+    ui->submitButton->setEnabled(false);
+
+
     emit sendParameters(w, I);
+}
+
+void Dialog::pause()
+{
+    ui->SceneWidget->timerPaused ?
+                ui->pauseButton->setText("Пауза") :
+                ui->pauseButton->setText("Продолжить");
+
+    emit sendPaused();
+}
+
+void Dialog::stop()
+{
+    ui->pauseButton->setText("Пауза");
+    ui->pauseButton->setEnabled(false);
+    ui->stopButton->setEnabled(false);
+    ui->submitButton->setEnabled(true);
+
+    emit sendStopped();
 }

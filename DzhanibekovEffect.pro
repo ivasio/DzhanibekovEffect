@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     body.cpp \
     ServiceClasses/alert.cpp \
     ServiceClasses/numberinput.cpp \
-    ServiceClasses/positivenumberinput.cpp
+    ServiceClasses/positivenumberinput.cpp \
+    ServiceClasses/servicefunctions.cpp
 
 HEADERS  += dialog.h \
     scene.h \
     body.h \
     ServiceClasses/alert.h \
     ServiceClasses/numberinput.h \
-    ServiceClasses/positivenumberinput.h
+    ServiceClasses/positivenumberinput.h \
+    ServiceClasses/servicefunctions.h
 
 FORMS    += dialog.ui
 
