@@ -7,17 +7,16 @@
 class Body
 {
 public:
-    Body(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr, QVector3D I_p);
+	Body(QOpenGLShaderProgram* program, int vertexAttr, int colorAttr);
 
-    void setInertionTensor (QVector3D I_p);
+    void initialize (QVector3D I_p);
     void draw ();
 
-    QMatrix3x3 I;
-    QMatrix3x3 IRev;
+    QVector3D I;
 
 private:
 
-    void initVerticles (float a, float b, float c);
+    void initVerticles (QVector3D size);
 
     QVector3D* verticles;
     QVector3D* colors;

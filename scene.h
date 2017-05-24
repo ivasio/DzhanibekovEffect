@@ -8,6 +8,8 @@
 #include <QKeyEvent>
 
 #include "body.h"
+#include "ServiceClasses/maths.h"
+
 
 class Scene : public QOpenGLWidget
 {
@@ -16,6 +18,8 @@ class Scene : public QOpenGLWidget
 public:
     Scene( QWidget *parent);
     ~Scene();
+
+    void initializeI (QVector3D I_p);
 
     bool timerPaused;
 
@@ -41,11 +45,13 @@ private:
     QTimer* timer;
     float timeStep;
     float velocity;
+    float projectionCubeSize;
 
     QQuaternion fullRotation;
-    QVector3D* w;
-    QVector3D* w0;
-    float projectionCubeSize;
+    QVector3D w;
+    QVector3D I;
+
+    Maths* m;
 
 };
 

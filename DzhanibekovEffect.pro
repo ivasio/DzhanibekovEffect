@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     ServiceClasses/alert.cpp \
     ServiceClasses/numberinput.cpp \
     ServiceClasses/positivenumberinput.cpp \
-    ServiceClasses/servicefunctions.cpp
+    ServiceClasses/servicefunctions.cpp \
+    ServiceClasses/maths.cpp
 
 HEADERS  += dialog.h \
     scene.h \
@@ -27,7 +28,8 @@ HEADERS  += dialog.h \
     ServiceClasses/alert.h \
     ServiceClasses/numberinput.h \
     ServiceClasses/positivenumberinput.h \
-    ServiceClasses/servicefunctions.h
+    ServiceClasses/servicefunctions.h \
+    ServiceClasses/maths.h
 
 FORMS    += dialog.ui
 

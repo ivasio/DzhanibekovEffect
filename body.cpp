@@ -2,7 +2,7 @@
 #include "ServiceClasses/servicefunctions.h"
 #include <cmath>
 
-Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr_p, int colorAttr_p, QVector3D I_p) :
+Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr_p, int colorAttr_p) :
     program (program_p),
     vertexAttr (vertexAttr_p),
     colorAttr (colorAttr_p),
@@ -12,10 +12,13 @@ Body::Body (QOpenGLShaderProgram* program_p, int vertexAttr_p, int colorAttr_p, 
     arrSize = (parallels-1) * (meridians+1) * 2 + 2 * (meridians+2);
     colors = new QVector3D[arrSize];
     verticles = new QVector3D[arrSize];
+}
 
-    setInertionTensor(I_p);
-    initVerticles(I_p.x(), I_p.y(), I_p.z());
-
+void Body::initialize(QVector3D I_p)
+{
+	QVector3D size;
+	for (int i = 0; i < 3; i++) size[i] = sqrt (1 / I_p[i]);
+	initVerticles(size);
 }
 
 void Body::draw()
@@ -37,7 +40,7 @@ void Body::draw()
     program->disableAttributeArray(colorAttr);
 }
 
-void Body::initVerticles (float a, float b, float c)
+void Body::initVerticles (QVector3D size)
 {
 
     ServiceFunctions s;
@@ -74,26 +77,6 @@ void Body::initVerticles (float a, float b, float c)
     }
 
     for (int i = 0; i < arrSize; i++)
-    {
-        verticles[i].setX (verticles[i].x() * a);
-        verticles[i].setY (verticles[i].y() * b);
-        verticles[i].setZ (verticles[i].z() * c);
-    }
-
-}
-
-void Body::setInertionTensor (QVector3D I_p)
-{
-
-    float moments[9] = {I_p.x(), 0, 0,
-                        0, I_p.y(), 0,
-                        0, 0, I_p.z()};
-
-    float momentsRev[9] = {1/I_p.x(), 0, 0,
-                           0, 1/I_p.y(), 0,
-                           0, 0, 1/I_p.z()};
-
-    new(&I)(QMatrix3x3)(moments);
-    new(&IRev)(QMatrix3x3)(momentsRev);
+        verticles[i] *= size;
 
 }

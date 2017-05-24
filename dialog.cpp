@@ -35,12 +35,15 @@ Dialog::~Dialog()
 
 void Dialog::setDefaultValues()
 {
-    ui->input_Ix->setText("30");
-    ui->input_Iy->setText("10");
-    ui->input_Iz->setText("5");
-    ui->input_wx->setText("10");
-    ui->input_wy->setText("0");
-    ui->input_wz->setText("0");
+	QVector3D I (30, 10, 4);
+    ui->input_Ix->setText(QString::number(I.x()));
+    ui->input_Iy->setText(QString::number(I.y()));
+    ui->input_Iz->setText(QString::number(I.z()));
+	ui->input_wx->setText("6");
+	ui->input_wy->setText("0.2");
+	ui->input_wz->setText("0");
+
+	ui->SceneWidget->initializeI (I);
 }
 
 void Dialog::processParameters()

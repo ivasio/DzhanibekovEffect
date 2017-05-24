@@ -2,8 +2,7 @@
 #include <QDebug>
 #include <cmath>
 
-ServiceFunctions::ServiceFunctions() :
-    precision (10000.0)
+ServiceFunctions::ServiceFunctions()
 {
 
 }
@@ -22,23 +21,11 @@ void ServiceFunctions::printMatrix3x1 (float* data)
     qDebug ("\n");
 }
 
-void ServiceFunctions::stabilize(QVector3D *vec)
+void ServiceFunctions::printVector(QVector3D vec)
 {
-
-    vec->setX (nearbyint (precision*vec->x()) / precision);
-    vec->setY (nearbyint (precision*vec->y()) / precision);
-    vec->setZ (nearbyint (precision*vec->z()) / precision);
-
+    qDebug() << vec.x() << vec.y() << vec.z();
 }
 
-void ServiceFunctions::stabilize(QQuaternion *quat)
-{
-    quat->setX (nearbyint (precision*quat->x()) / precision);
-    quat->setY (nearbyint (precision*quat->y()) / precision);
-    quat->setZ (nearbyint (precision*quat->z()) / precision);
-    quat->setScalar (nearbyint (precision*quat->scalar()) / precision);
-
-}
 
 //----------------------------------------------------------
 
@@ -64,9 +51,9 @@ float ServiceFunctions::maxReversedMoment(QVector3D *vec_p)
 {
     QVector3D vec = *vec_p;
     float max = 0;
-    if (vec.x() >= max) max = vec.x();
-    if (vec.y() >= max) max = vec.y();
-    if (vec.z() >= max) max = vec.z();
+
+	for (int i = 0; i < 3; i++)
+		if (sqrt (1 / vec[i]) >= max) max = sqrt (1 / vec[i]);
 
     return max;
 }
